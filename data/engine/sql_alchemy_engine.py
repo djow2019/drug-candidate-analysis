@@ -13,6 +13,9 @@ class SqlAlchemyEngine(SqlEngine):
         self.engines = {}
         self.db = db
 
+        if db:
+            self.create_db(db)
+
     def db_exists(self, db: str) -> bool:
         if db is None:
             db = self.db
@@ -73,3 +76,12 @@ class SqlAlchemyEngine(SqlEngine):
         with Session(self.engines[db]) as session:
             session.execute(stmt, data)
             session.commit()
+
+    def execute_query(self, db: str, query: str, bindings: dict):
+        if self.engines[db] is None:
+            self.create_db(db)
+        stmt = text(query)
+        with self.engines[db].connect() as connection:
+            result = connection.execute(stmt, bindings)
+            return result
+

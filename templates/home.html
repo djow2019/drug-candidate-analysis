@@ -1,6 +1,187 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <meta charset="UTF-8">
+    <title>Cell Frequency Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
 <body>
-    <h1>Hello World!</h1>
+
+    <h1>Cell Frequency Dashboard</h1>
+
+    <div class="search-bar">
+        <input type="text" id="sampleInput" placeholder="Enter sample ID...">
+        <button onclick="searchSample()">Search</button>
+        <button class="secondary" onclick="loadAllData()">Show All</button>
+    </div>
+
+    <div id="status"></div>
+
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>Sample</th>
+                <th>Total Count</th>
+                <th>B Cells</th>
+                <th>B Cell Freq (%)</th>
+                <th>CD8 T Cells</th>
+                <th>CD8 T Cell Freq (%)</th>
+                <th>CD4 T Cells</th>
+                <th>CD4 T Cell Freq (%)</th>
+                <th>NK Cells</th>
+                <th>NK Cell Freq (%)</th>
+                <th>Monocytes</th>
+                <th>Monocyte Freq (%)</th>
+            </tr>
+        </thead>
+        <tbody id="dataTableBody">
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        <button id="prevBtn" onclick="goToPage(currentPage - 1)">&laquo; Prev</button>
+        <span id="pageInfo">Page 1 of 1</span>
+        <button id="nextBtn" onclick="goToPage(currentPage + 1)">Next &raquo;</button>
+
+        <label for="pageSizeSelect" style="margin-left: 15px;">Rows per page:</label>
+        <select id="pageSizeSelect" onchange="changePageSize()">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+        </select>
+    </div>
+
+    <script>
+        const statusEl = document.getElementById('status');
+        const tableBody = document.getElementById('dataTableBody');
+        const pageInfoEl = document.getElementById('pageInfo');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const pageSizeSelect = document.getElementById('pageSizeSelect');
+
+        let currentPage = 1;
+        let currentSample = null;
+        let totalPages = 1;
+
+        function setStatus(message, isError) {
+            statusEl.textContent = message;
+            statusEl.className = isError ? 'error' : '';
+        }
+
+        function updatePaginationControls(pagination) {
+            currentPage = pagination.page;
+            totalPages = pagination.total_pages;
+
+            pageInfoEl.textContent = `Page ${pagination.page} of ${pagination.total_pages} (${pagination.total} total rows)`;
+            prevBtn.disabled = pagination.page <= 1;
+            nextBtn.disabled = pagination.page >= pagination.total_pages;
+        }
+
+        function goToPage(page) {
+            if (page < 1 || page > totalPages || page === currentPage) {
+                return;
+            }
+            fetchFrequency(currentSample, page);
+        }
+
+        function changePageSize() {
+            fetchFrequency(currentSample, 1);
+        }
+
+        function renderRows(rows) {
+            tableBody.innerHTML = '';
+
+            if (!rows || rows.length === 0) {
+                const row = document.createElement('tr');
+                const cell = document.createElement('td');
+                cell.colSpan = 12;
+                cell.style.textAlign = 'center';
+                cell.textContent = 'No results found.';
+                row.appendChild(cell);
+                tableBody.appendChild(row);
+                return;
+            }
+
+            rows.forEach(item => {
+                const row = document.createElement('tr');
+                const values = [
+                    item.sample,
+                    item.total_count,
+                    item.b_cells,
+                    item.b_cell_freq,
+                    item.cd8_t_cells,
+                    item.cd8_t_cells_freq,
+                    item.cd4_t_cells,
+                    item.cd4_t_cells_freq,
+                    item.nk_cells,
+                    item.nk_cells_freq,
+                    item.monocytes,
+                    item.monocytes_freq
+                ];
+                values.forEach(value => {
+                    const cell = document.createElement('td');
+                    cell.textContent = (value === null || value === undefined) ? '' : value;
+                    row.appendChild(cell);
+                });
+                tableBody.appendChild(row);
+            });
+        }
+
+        function fetchFrequency(sample, page) {
+            setStatus('Loading...', false);
+
+            const pageSize = parseInt(pageSizeSelect.value, 10);
+            currentSample = sample || null;
+
+            fetch('/api/frequency', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sample: currentSample,
+                    page: page || 1,
+                    page_size: pageSize
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Request failed with status ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                const rows = data.message || [];
+                renderRows(rows);
+                if (data.pagination) {
+                    updatePaginationControls(data.pagination);
+                }
+                setStatus(rows.length + ' row(s) shown.', false);
+            })
+            .catch(err => {
+                setStatus('Error loading data: ' + err.message, true);
+                renderRows([]);
+            });
+        }
+
+        function loadAllData() {
+            document.getElementById('sampleInput').value = '';
+            fetchFrequency(null, 1);
+        }
+
+        function searchSample() {
+            const sample = document.getElementById('sampleInput').value.trim();
+            fetchFrequency(sample || null, 1);
+        }
+
+        document.getElementById('sampleInput').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                searchSample();
+            }
+        });
+
+        // load all data by default when the page opens
+        loadAllData();
+    </script>
+
 </body>
 </html>

@@ -3,6 +3,7 @@ from sqlalchemy import String
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
+from sqlalchemy import REAL
 
 
 class Base(DeclarativeBase):
@@ -44,11 +45,11 @@ class Samples(Base):
 class CellCounts(Base):
     __tablename__ = "cell_counts"
     sample: Mapped[str] = mapped_column(ForeignKey("samples.id"), primary_key=True)
-    b_cells: Mapped[int] = mapped_column(nullable=True)
-    cd8_t_cells: Mapped[int] = mapped_column(nullable=True)
-    cd4_t_cells: Mapped[int] = mapped_column(nullable=True)
-    nk_cells: Mapped[int] = mapped_column(nullable=True)
-    monocytes: Mapped[int] = mapped_column(nullable=True)
+    b_cells: Mapped[int] = mapped_column(REAL, nullable=True)
+    cd8_t_cells: Mapped[int] = mapped_column(REAL, nullable=True)
+    cd4_t_cells: Mapped[int] = mapped_column(REAL, nullable=True)
+    nk_cells: Mapped[int] = mapped_column(REAL, nullable=True)
+    monocytes: Mapped[int] = mapped_column(REAL, nullable=True)
 
     def __repr__(self) -> str:
         return f"Counts(sample={self.sample}, b_cell={self.b_cell}, cd8_t_cells={self.cd8_t_cells}, cd4_t_cells={self.cd4_t_cells}, nk_cells={self.nk_cells}, monocytes={self.monocytes})"

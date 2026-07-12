@@ -26,3 +26,7 @@ class SqlEngine(ABC):
     @abstractmethod
     def upsert(self, db: str, schema, data: list, primary_key: str):
         pass
+
+    @abstractmethod
+    def execute_query(self, db:str, query: str, bindings: dict):
+        pass

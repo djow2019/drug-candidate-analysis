@@ -1,0 +1,127 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #f4f5f7;
+    color: #222;
+    margin: 0;
+    padding: 30px;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+.search-bar {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.search-bar input[type="text"] {
+    padding: 8px 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 250px;
+}
+
+.search-bar button {
+    padding: 8px 16px;
+    font-size: 14px;
+    border: none;
+    border-radius: 4px;
+    background-color: #2c6ecb;
+    color: white;
+    cursor: pointer;
+}
+
+.search-bar button:hover {
+    background-color: #1d4f9c;
+}
+
+.search-bar button.secondary {
+    background-color: #888;
+}
+
+.search-bar button.secondary:hover {
+    background-color: #666;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: right;
+    font-size: 13px;
+}
+
+th {
+    background-color: #2c6ecb;
+    color: white;
+    text-align: center;
+    white-space: nowrap;
+}
+
+td:first-child, th:first-child {
+    text-align: left;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tr:hover {
+    background-color: #eef3fc;
+}
+
+#status {
+    margin-bottom: 10px;
+    font-size: 13px;
+    color: #555;
+}
+
+#status.error {
+    color: #c0392b;
+}
+
+.pagination {
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+}
+
+.pagination button {
+    padding: 6px 14px;
+    font-size: 13px;
+    border: 1px solid #2c6ecb;
+    border-radius: 4px;
+    background-color: white;
+    color: #2c6ecb;
+    cursor: pointer;
+}
+
+.pagination button:hover:not(:disabled) {
+    background-color: #2c6ecb;
+    color: white;
+}
+
+.pagination button:disabled {
+    border-color: #ccc;
+    color: #ccc;
+    cursor: not-allowed;
+}
+
+.pagination select {
+    padding: 5px 6px;
+    font-size: 13px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
