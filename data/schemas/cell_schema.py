@@ -12,9 +12,9 @@ class Base(DeclarativeBase):
 class Subjects(Base):
     __tablename__ = "subjects"
     id: Mapped[str] = mapped_column(primary_key=True)
-    condition: Mapped[str] = mapped_column(String(30))
-    age: Mapped[int] = mapped_column()
-    sex: Mapped[str] = mapped_column(String(10))
+    condition: Mapped[str] = mapped_column(String(30), nullable=True)
+    age: Mapped[int] = mapped_column(nullable=True)
+    sex: Mapped[str] = mapped_column(String(10), nullable=True)
 
     def __repr__(self) -> str:
         return f"Subject(id={self.id}, condition={self.condition}, age={self.age}, sex={self.sex})"
@@ -23,10 +23,9 @@ class Subjects(Base):
 class Projects(Base):
     __tablename__ = "projects"
     id: Mapped[str] = mapped_column(primary_key=True)
-    subject: Mapped[str] = mapped_column(ForeignKey("subjects.id"))
 
     def __repr__(self) -> str:
-        return f"Project(id={self.id}, subject={self.subject})"
+        return f"Project(id={self.id})"
 
 
 class Samples(Base):
@@ -34,9 +33,9 @@ class Samples(Base):
     id: Mapped[str] = mapped_column(primary_key=True)
     project: Mapped[str] = mapped_column(ForeignKey("projects.id"))
     subject: Mapped[str] = mapped_column(ForeignKey("subjects.id"))
-    treatment: Mapped[str] = mapped_column(String(30))
-    response: Mapped[str] = mapped_column(String(30))
-    type: Mapped[str] = mapped_column(String(30))
+    treatment: Mapped[str] = mapped_column(String(30), nullable=True)
+    response: Mapped[str] = mapped_column(String(30), nullable=True)
+    type: Mapped[str] = mapped_column(String(30), nullable=True)
 
     def __repr__(self) -> str:
         return f"Sample(id={self.id}, project={self.project}, subject={self.subject}, treatment={self.treatment}, response={self.response}, type={self.type})"
@@ -45,11 +44,11 @@ class Samples(Base):
 class CellCounts(Base):
     __tablename__ = "cell_counts"
     sample: Mapped[str] = mapped_column(ForeignKey("samples.id"), primary_key=True)
-    b_cell: Mapped[int] = mapped_column()
-    cd8_t_cells: Mapped[int] = mapped_column()
-    cd4_t_cells: Mapped[int] = mapped_column()
-    nk_cells: Mapped[int] = mapped_column()
-    monocytes: Mapped[int] = mapped_column()
+    b_cells: Mapped[int] = mapped_column(nullable=True)
+    cd8_t_cells: Mapped[int] = mapped_column(nullable=True)
+    cd4_t_cells: Mapped[int] = mapped_column(nullable=True)
+    nk_cells: Mapped[int] = mapped_column(nullable=True)
+    monocytes: Mapped[int] = mapped_column(nullable=True)
 
     def __repr__(self) -> str:
         return f"Counts(sample={self.sample}, b_cell={self.b_cell}, cd8_t_cells={self.cd8_t_cells}, cd4_t_cells={self.cd4_t_cells}, nk_cells={self.nk_cells}, monocytes={self.monocytes})"

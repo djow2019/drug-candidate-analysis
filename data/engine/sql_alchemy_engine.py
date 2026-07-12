@@ -1,6 +1,7 @@
 import os
 
 from sqlalchemy import create_engine, text, inspect
+from sqlalchemy.orm import Session
 
 from data.engine.sql_engine import SqlEngine
 
@@ -55,5 +56,20 @@ class SqlAlchemyEngine(SqlEngine):
             with self.engines[db].connect() as connection:
                 connection.execute(text(f"CREATE TABLE IF NOT EXISTS {table} ({schema})"))
 
-    def upsert(self, table: str, cols: list, values: list, primary_key: str):
-        pass
+    def upsert(self, db:str, schema, data: list, primary_key: str):
+        import importlib
+
+        if self.engines[db] is None:
+            self.create_db(db)
+
+        insert = getattr(importlib.import_module(f"sqlalchemy.dialects.{self.ds.name()}"), "insert")
+        stmt = insert(schema)
+
+        conflict_set = {}
+        for col in list(schema.__table__.columns.keys()):
+            conflict_set[col] = stmt.excluded[col]
+
+        stmt = stmt.on_conflict_do_update(index_elements=[primary_key], set_=conflict_set)
+        with Session(self.engines[db]) as session:
+            session.execute(stmt, data)
+            session.commit()

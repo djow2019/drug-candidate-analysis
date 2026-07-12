@@ -8,3 +8,7 @@ class Datastore(ABC):
     @abstractmethod
     def connection_url(self, db):
         pass
+
+    @abstractmethod
+    def name(self):
+        pass

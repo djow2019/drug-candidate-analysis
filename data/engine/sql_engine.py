@@ -24,5 +24,5 @@ class SqlEngine(ABC):
         pass
 
     @abstractmethod
-    def upsert(self, db: str, table: str, cols: list, values: list, primary_key: str):
+    def upsert(self, db: str, schema, data: list, primary_key: str):
         pass
