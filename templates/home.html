@@ -52,6 +52,56 @@
         </select>
     </div>
 
+    <div class="chart-container">
+        <h2>Cell Type Distribution Visualizations</h2>
+
+        <div class="filter-bar">
+            <label for="treatmentSelect">Treatment:</label>
+            <select id="treatmentSelect">
+                <option value="">All</option>
+            </select>
+
+            <label for="typeSelect">Type:</label>
+            <select id="typeSelect">
+                <option value="">All</option>
+            </select>
+        </div>
+
+        <div class="boxplot-legend">
+            <span class="legend-swatch legend-no"></span> Response: No
+            <span class="legend-swatch legend-yes"></span> Response: Yes
+        </div>
+
+        <div class="boxplot-grid">
+            <div class="boxplot-panel">
+                <h3>B Cells</h3>
+                <div id="boxplot-b-cells"></div>
+                <p class="ttest-result" id="ttest-b-cells"></p>
+            </div>
+            <div class="boxplot-panel">
+                <h3>CD8 T Cells</h3>
+                <div id="boxplot-cd8-t-cells"></div>
+                <p class="ttest-result" id="ttest-cd8-t-cells"></p>
+            </div>
+            <div class="boxplot-panel">
+                <h3>CD4 T Cells</h3>
+                <div id="boxplot-cd4-t-cells"></div>
+                <p class="ttest-result" id="ttest-cd4-t-cells"></p>
+            </div>
+            <div class="boxplot-panel">
+                <h3>NK Cells</h3>
+                <div id="boxplot-nk-cells"></div>
+                <p class="ttest-result" id="ttest-nk-cells"></p>
+            </div>
+            <div class="boxplot-panel">
+                <h3>Monocytes</h3>
+                <div id="boxplot-monocytes"></div>
+                <p class="ttest-result" id="ttest-monocytes"></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
     <script>
         const statusEl = document.getElementById('status');
         const tableBody = document.getElementById('dataTableBody');
@@ -179,8 +229,303 @@
             }
         });
 
+        // ---- box plot rendering (D3) ----
+
+        // classic 1.5*IQR box plot stats: quartiles, whiskers, and outliers
+        function computeBoxStats(values) {
+            const sorted = values.slice().sort(d3.ascending);
+            const q1 = d3.quantile(sorted, 0.25);
+            const median = d3.quantile(sorted, 0.5);
+            const q3 = d3.quantile(sorted, 0.75);
+            const iqr = q3 - q1;
+            const lowerFence = q1 - 1.5 * iqr;
+            const upperFence = q3 + 1.5 * iqr;
+
+            const withinRange = sorted.filter(v => v >= lowerFence && v <= upperFence);
+            const whiskerMin = d3.min(withinRange);
+            const whiskerMax = d3.max(withinRange);
+            const outliers = sorted.filter(v => v < lowerFence || v > upperFence);
+
+            return { q1, median, q3, whiskerMin, whiskerMax, outliers };
+        }
+
+        function renderBoxPlot(containerId, categories) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            const margin = { top: 20, right: 30, bottom: 50, left: 55 };
+            const width = 400 - margin.left - margin.right;
+            const height = 340 - margin.top - margin.bottom;
+
+            const svg = d3.select(`#${containerId}`)
+                .append('svg')
+                .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+                .attr('width', '100%')
+                .attr('height', height + margin.top + margin.bottom)
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scaleBand()
+                .domain(categories.map(c => c.label))
+                .range([0, width])
+                .padding(0.4);
+
+            const allValues = categories.flatMap(c => c.values);
+            const yMax = d3.max(allValues) || 1;
+
+            const y = d3.scaleLinear()
+                .domain([0, yMax * 1.1])
+                .range([height, 0]);
+
+            svg.append('g')
+                .attr('transform', `translate(0,${height})`)
+                .call(d3.axisBottom(x))
+                .selectAll('text')
+                .style('font-size', '11px');
+
+            svg.append('g')
+                .call(d3.axisLeft(y))
+                .selectAll('text')
+                .style('font-size', '11px');
+
+            svg.append('text')
+                .attr('transform', 'rotate(-90)')
+                .attr('y', -40)
+                .attr('x', -height / 2)
+                .attr('text-anchor', 'middle')
+                .style('font-size', '12px')
+                .text('Frequency (%)');
+
+            const boxWidth = x.bandwidth();
+
+            // index-based palette: first category (No) = blue, second (Yes) = amber
+            const palette = [
+                { fill: '#dceafb', stroke: '#2c6ecb', median: '#1d4f9c' },
+                { fill: '#fde3c8', stroke: '#e67e22', median: '#b9650a' }
+            ];
+
+            categories.forEach((cat, idx) => {
+                if (cat.values.length === 0) {
+                    return;
+                }
+
+                const colors = palette[idx % palette.length];
+                const stats = computeBoxStats(cat.values);
+                const cx = x(cat.label) + boxWidth / 2;
+
+                // whisker line
+                svg.append('line')
+                    .attr('x1', cx).attr('x2', cx)
+                    .attr('y1', y(stats.whiskerMin)).attr('y2', y(stats.whiskerMax))
+                    .attr('stroke', colors.stroke)
+                    .attr('stroke-width', 1.5);
+
+                // whisker caps
+                [stats.whiskerMin, stats.whiskerMax].forEach(v => {
+                    svg.append('line')
+                        .attr('x1', cx - boxWidth * 0.2).attr('x2', cx + boxWidth * 0.2)
+                        .attr('y1', y(v)).attr('y2', y(v))
+                        .attr('stroke', colors.stroke)
+                        .attr('stroke-width', 1.5);
+                });
+
+                // box (Q1-Q3)
+                svg.append('rect')
+                    .attr('x', x(cat.label))
+                    .attr('y', y(stats.q3))
+                    .attr('width', boxWidth)
+                    .attr('height', Math.max(y(stats.q1) - y(stats.q3), 1))
+                    .attr('fill', colors.fill)
+                    .attr('stroke', colors.stroke)
+                    .attr('stroke-width', 1.5);
+
+                // median line
+                svg.append('line')
+                    .attr('x1', x(cat.label)).attr('x2', x(cat.label) + boxWidth)
+                    .attr('y1', y(stats.median)).attr('y2', y(stats.median))
+                    .attr('stroke', colors.median)
+                    .attr('stroke-width', 2);
+
+                // outliers
+                svg.selectAll(`.outlier-${cat.label.replace(/\s+/g, '')}`)
+                    .data(stats.outliers)
+                    .enter()
+                    .append('circle')
+                    .attr('cx', cx)
+                    .attr('cy', v => y(v))
+                    .attr('r', 3)
+                    .attr('fill', '#c0392b')
+                    .attr('opacity', 0.7);
+            });
+        }
+
+        // ---- filtered box plot data loading ----
+
+        const treatmentSelect = document.getElementById('treatmentSelect');
+        const typeSelect = document.getElementById('typeSelect');
+
+        async function loadDropdownOptions() {
+            try {
+                const [treatmentsRes, typesRes] = await Promise.all([
+                    fetch('/api/treatments'),
+                    fetch('/api/types')
+                ]);
+
+                if (!treatmentsRes.ok || !typesRes.ok) {
+                    throw new Error('Failed to load filter options');
+                }
+
+                const treatmentsData = await treatmentsRes.json();
+                const typesData = await typesRes.json();
+
+                (treatmentsData.message || []).forEach(value => {
+                    const opt = document.createElement('option');
+                    opt.value = value;
+                    opt.textContent = value;
+                    treatmentSelect.appendChild(opt);
+                });
+
+                (typesData.message || []).forEach(value => {
+                    const opt = document.createElement('option');
+                    opt.value = value;
+                    opt.textContent = value;
+                    typeSelect.appendChild(opt);
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function fetchFilteredFrequency(treatment, type, response) {
+            const res = await fetch('/api/frequency/filter', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    treatment: treatment || null,
+                    type: type || null,
+                    response: response
+                })
+            });
+            if (!res.ok) {
+                throw new Error('Request failed with status ' + res.status);
+            }
+            const data = await res.json();
+            return data.message || [];
+        }
+
+        // one entry per cell type -> the panel + t-test result element that should render it
+        const CELL_TYPES = [
+            { key: 'b_cell_freq', containerId: 'boxplot-b-cells', resultId: 'ttest-b-cells' },
+            { key: 'cd8_t_cells_freq', containerId: 'boxplot-cd8-t-cells', resultId: 'ttest-cd8-t-cells' },
+            { key: 'cd4_t_cells_freq', containerId: 'boxplot-cd4-t-cells', resultId: 'ttest-cd4-t-cells' },
+            { key: 'nk_cells_freq', containerId: 'boxplot-nk-cells', resultId: 'ttest-nk-cells' },
+            { key: 'monocytes_freq', containerId: 'boxplot-monocytes', resultId: 'ttest-monocytes' }
+        ];
+
+        function valuesFor(rows, key) {
+            return rows
+                .map(r => r[key])
+                .filter(v => v !== null && v !== undefined);
+        }
+
+        // avoids showing "0.0000" for very small p-values by switching to
+        // scientific notation (e.g. 2.58e-6) below a fixed-decimal threshold
+        function formatPValue(p) {
+            if (p === 0) {
+                return '0';
+            }
+            if (Math.abs(p) < 0.0001) {
+                return p.toExponential(2);
+            }
+            return p.toFixed(4);
+        }
+
+        async function runTTest(resultId, groupA, groupB) {
+            const resultEl = document.getElementById(resultId);
+            resultEl.textContent = '';
+            resultEl.className = 'ttest-result';
+
+            if (groupA.length < 2 || groupB.length < 2) {
+                resultEl.textContent = 'Not enough samples for a t-test.';
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/statistics/ttest', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        group_a: groupA,
+                        group_b: groupB,
+                        metadata: {
+                            treatment: treatmentSelect.value || null,
+                            type: typeSelect.value || null
+                        }
+                    })
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    resultEl.textContent = data.error || 't-test failed.';
+                    return;
+                }
+
+                const pVal = data.message['p-val'];
+                const isSignificant = pVal < 0.05;
+                resultEl.textContent = `p = ${formatPValue(pVal)}` + (isSignificant ? ' (significant)' : '');
+                resultEl.className = 'ttest-result' + (isSignificant ? ' significant' : '');
+            } catch (err) {
+                resultEl.textContent = 'Failed to run t-test.';
+            }
+        }
+
+        async function updateFilteredBoxPlots() {
+            const treatment = treatmentSelect.value;
+            const type = typeSelect.value;
+
+            CELL_TYPES.forEach(ct => {
+                document.getElementById(ct.containerId).innerHTML =
+                    '<p style="font-size: 13px; color: #555;">Loading chart...</p>';
+                document.getElementById(ct.resultId).textContent = '';
+            });
+
+            try {
+                const [noRows, yesRows] = await Promise.all([
+                    fetchFilteredFrequency(treatment, type, 'no'),
+                    fetchFilteredFrequency(treatment, type, 'yes')
+                ]);
+
+                CELL_TYPES.forEach(ct => {
+                    const container = document.getElementById(ct.containerId);
+                    const noValues = valuesFor(noRows, ct.key);
+                    const yesValues = valuesFor(yesRows, ct.key);
+
+                    if (noValues.length === 0 && yesValues.length === 0) {
+                        container.innerHTML = '<p style="font-size: 13px; color: #555;">No data for this filter combination.</p>';
+                        return;
+                    }
+
+                    renderBoxPlot(ct.containerId, [
+                        { label: 'No', values: noValues },
+                        { label: 'Yes', values: yesValues }
+                    ]);
+
+                    runTTest(ct.resultId, noValues, yesValues);
+                });
+            } catch (err) {
+                CELL_TYPES.forEach(ct => {
+                    document.getElementById(ct.containerId).innerHTML =
+                        '<p style="font-size: 13px; color: #c0392b;">Failed to load chart: ' + err.message + '</p>';
+                });
+            }
+        }
+
+        treatmentSelect.addEventListener('change', updateFilteredBoxPlots);
+        typeSelect.addEventListener('change', updateFilteredBoxPlots);
+
         // load all data by default when the page opens
         loadAllData();
+        loadDropdownOptions().then(updateFilteredBoxPlots);
     </script>
 
 </body>

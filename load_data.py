@@ -40,7 +40,7 @@ def load_cell_data(file_name: str, engine: SqlEngine, db: str):
                 "id": row["project"]
             })
             buf_samples.append({
-                "id": row["subject"],
+                "id": row["sample"],
                 "project": row["project"],
                 "subject": row["subject"],
                 "treatment": row["treatment"],
