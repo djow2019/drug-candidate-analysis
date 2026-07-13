@@ -121,6 +121,10 @@
                 <p class="qa-question">Of those subjects, what's the sex breakdown (M vs F)?</p>
                 <p class="qa-answer" id="qa-sex">Loading...</p>
             </div>
+            <div class="qa-item">
+                <p class="qa-question">Considering Melanoma males, what is the average B cells for responders at time=0?</p>
+                <p class="qa-answer" id="qa-b-count">Loading...</p>
+            </div>
         </div>
     </div>
 
@@ -592,6 +596,13 @@
                     : rows.map(r => `${r.sex}: ${r.count}`).join(', ');
             } catch (err) {
                 document.getElementById('qa-sex').textContent = 'Failed to load.';
+            }
+
+            try {
+                const bData = await getJSON('/api/analysis/pbmc-baseline/b-counts');
+                document.getElementById('qa-b-count').textContent = bData.message[0].avg_b_cells_in_beginning;
+            } catch (err) {
+                document.getElementById('qa-b-count').textContent = 'Failed to load.';
             }
         }
 

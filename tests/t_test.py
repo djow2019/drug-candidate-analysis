@@ -6,7 +6,6 @@ class T_Test(StatisticalTest):
 
         # check variance
         stat, p_variance = stats.levene(group_a, group_b)
-        print(f"Variance: {p_variance}")
         equal_variance = p_variance >= 0.05
 
         t_stat, p_val = stats.ttest_ind(group_a, group_b, equal_var=equal_variance)

@@ -214,6 +214,19 @@ def pbmc_baseline_sex_counts():
     rows = fetch_rows(query, {})
     return jsonify({"message": rows}), 200
 
+# 5. same cohort, melanoma males, average B-Cells for responders at t=0
+@app.route('/api/analysis/pbmc-baseline/b-counts', methods=['GET'])
+def pbmc_baseline_avg_b_counts():
+    query = """
+    SELECT ROUND(AVG(b_cells), 2) AS avg_b_cells_in_beginning
+    FROM cell_counts
+    JOIN samples s ON sample = s.id
+    JOIN subjects sub ON s.subject = sub.id
+    WHERE s.time_from_treatment_start = 0 AND s.type = "PBMC" AND sub.condition = "melanoma" AND sub.sex = "M" AND sub.response = "yes"
+    """
+    rows = fetch_rows(query, {})
+    return jsonify({"message": rows}), 200
+
 
 # runs a t-test on two groups of sample values
 @app.route('/api/statistics/ttest', methods=['POST'])
