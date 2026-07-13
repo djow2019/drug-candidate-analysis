@@ -1,0 +1,91 @@
+<svg viewBox="0 0 1040 764" xmlns="http://www.w3.org/2000/svg" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#555"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="1040" height="764" fill="#f4f5f7"/>
+  <text x="520.0" y="34" text-anchor="middle" font-size="20" font-weight="bold" fill="#222">Cell Count Analysis &#8212; Database Schema</text>
+
+  <rect x="40" y="70" width="260" height="164" rx="4" fill="white" stroke="#2c6ecb" stroke-width="1.5"/>
+<rect x="40" y="70" width="260" height="32" rx="4" fill="#2c6ecb"/>
+<rect x="40" y="90" width="260" height="12" fill="#2c6ecb"/>
+<text x="170.0" y="91.0" text-anchor="middle" font-size="15" font-weight="bold" fill="white">subjects</text>
+<text x="56" y="117.0" font-size="12" font-family="Courier New, monospace" font-weight="bold" fill="#222">id</text>
+<text x="284" y="117.0" text-anchor="end" font-size="10" font-family="Courier New, monospace" font-weight="bold" fill="#2c6ecb">PK</text>
+<text x="56" y="139.0" font-size="12" font-family="Courier New, monospace"  fill="#222">condition</text>
+<text x="284" y="139.0" text-anchor="end" font-size="10" font-family="Courier New, monospace" fill="#888">str(30)</text>
+<line x1="40" y1="124" x2="300" y2="124" stroke="#eee"/>
+<text x="56" y="161.0" font-size="12" font-family="Courier New, monospace"  fill="#222">age</text>
+<text x="284" y="161.0" text-anchor="end" font-size="10" font-family="Courier New, monospace" fill="#888">int</text>
+<line x1="40" y1="146" x2="300" y2="146" stroke="#eee"/>
+<text x="56" y="183.0" font-size="12" font-family="Courier New, monospace"  fill="#222">sex</text>
+<text x="284" y="183.0" text-anchor="end" font-size="10" font-family="Courier New, monospace" fill="#888">str(10)</text>
+<line x1="40" y1="168" x2="300" y2="168" stroke="#eee"/>
+<text x="56" y="205.0" font-size="12" font-family="Courier New, monospace"  fill="#222">treatment</text>
+<text x="284" y="205.0" text-anchor="end" font-size="10" font-family="Courier New, monospace" fill="#888">str(30)</text>
+<line x1="40" y1="190" x2="300" y2="190" stroke="#eee"/>
+<text x="56" y="227.0" font-size="12" font-family="Courier New, monospace"  fill="#222">response</text>
+<text x="284" y="227.0" text-anchor="end" font-size="10" font-family="Courier New, monospace" fill="#888">str(30)</text>
+<line x1="40" y1="212" x2="300" y2="212" stroke="#eee"/>
+  <rect x="740" y="70" width="260" height="54" rx="4" fill="white" stroke="#2c6ecb" stroke-width="1.5"/>
+<rect x="740" y="70" width="260" height="32" rx="4" fill="#2c6ecb"/>
+<rect x="740" y="90" width="260" height="12" fill="#2c6ecb"/>
+<text x="870.0" y="91.0" text-anchor="middle" font-size="15" font-weight="bold" fill="white">projects</text>
+<text x="756" y="117.0" font-size="12" font-family="Courier New, monospace" font-weight="bold" fill="#222">id</text>
+<text x="984" y="117.0" text-anchor="end" font-size="10" font-family="Courier New, monospace" font-weight="bold" fill="#2c6ecb">PK</text>
+  <rect x="390" y="320" width="260" height="142" rx="4" fill="white" stroke="#2c6ecb" stroke-width="1.5"/>
+<rect x="390" y="320" width="260" height="32" rx="4" fill="#2c6ecb"/>
+<rect x="390" y="340" width="260" height="12" fill="#2c6ecb"/>
+<text x="520.0" y="341.0" text-anchor="middle" font-size="15" font-weight="bold" fill="white">samples</text>
+<text x="406" y="367.0" font-size="12" font-family="Courier New, monospace" font-weight="bold" fill="#222">id</text>
+<text x="634" y="367.0" text-anchor="end" font-size="10" font-family="Courier New, monospace" font-weight="bold" fill="#2c6ecb">PK</text>
+<text x="406" y="389.0" font-size="12" font-family="Courier New, monospace" font-weight="bold" fill="#222">project</text>
+<text x="634" y="389.0" text-anchor="end" font-size="10" font-family="Courier New, monospace" font-weight="bold" fill="#e67e22">FK</text>
+<line x1="390" y1="374" x2="650" y2="374" stroke="#eee"/>
+<text x="406" y="411.0" font-size="12" font-family="Courier New, monospace" font-weight="bold" fill="#222">subject</text>
+<text x="634" y="411.0" text-anchor="end" font-size="10" font-family="Courier New, monospace" font-weight="bold" fill="#e67e22">FK</text>
+<line x1="390" y1="396" x2="650" y2="396" stroke="#eee"/>
+<text x="406" y="433.0" font-size="12" font-family="Courier New, monospace"  fill="#222">type</text>
+<text x="634" y="433.0" text-anchor="end" font-size="10" font-family="Courier New, monospace" fill="#888">str(30)</text>
+<line x1="390" y1="418" x2="650" y2="418" stroke="#eee"/>
+<text x="406" y="455.0" font-size="12" font-family="Courier New, monospace"  fill="#222">time_from_treatment_start</text>
+<text x="634" y="455.0" text-anchor="end" font-size="10" font-family="Courier New, monospace" fill="#888">int</text>
+<line x1="390" y1="440" x2="650" y2="440" stroke="#eee"/>
+  <rect x="390" y="560" width="260" height="164" rx="4" fill="white" stroke="#2c6ecb" stroke-width="1.5"/>
+<rect x="390" y="560" width="260" height="32" rx="4" fill="#2c6ecb"/>
+<rect x="390" y="580" width="260" height="12" fill="#2c6ecb"/>
+<text x="520.0" y="581.0" text-anchor="middle" font-size="15" font-weight="bold" fill="white">cell_counts</text>
+<text x="406" y="607.0" font-size="12" font-family="Courier New, monospace" font-weight="bold" fill="#222">sample</text>
+<text x="634" y="607.0" text-anchor="end" font-size="10" font-family="Courier New, monospace" font-weight="bold" fill="#2c6ecb">PK/FK</text>
+<text x="406" y="629.0" font-size="12" font-family="Courier New, monospace"  fill="#222">b_cells</text>
+<text x="634" y="629.0" text-anchor="end" font-size="10" font-family="Courier New, monospace" fill="#888">real</text>
+<line x1="390" y1="614" x2="650" y2="614" stroke="#eee"/>
+<text x="406" y="651.0" font-size="12" font-family="Courier New, monospace"  fill="#222">cd8_t_cells</text>
+<text x="634" y="651.0" text-anchor="end" font-size="10" font-family="Courier New, monospace" fill="#888">real</text>
+<line x1="390" y1="636" x2="650" y2="636" stroke="#eee"/>
+<text x="406" y="673.0" font-size="12" font-family="Courier New, monospace"  fill="#222">cd4_t_cells</text>
+<text x="634" y="673.0" text-anchor="end" font-size="10" font-family="Courier New, monospace" fill="#888">real</text>
+<line x1="390" y1="658" x2="650" y2="658" stroke="#eee"/>
+<text x="406" y="695.0" font-size="12" font-family="Courier New, monospace"  fill="#222">nk_cells</text>
+<text x="634" y="695.0" text-anchor="end" font-size="10" font-family="Courier New, monospace" fill="#888">real</text>
+<line x1="390" y1="680" x2="650" y2="680" stroke="#eee"/>
+<text x="406" y="717.0" font-size="12" font-family="Courier New, monospace"  fill="#222">monocytes</text>
+<text x="634" y="717.0" text-anchor="end" font-size="10" font-family="Courier New, monospace" fill="#888">real</text>
+<line x1="390" y1="702" x2="650" y2="702" stroke="#eee"/>
+  <path d="M 170.0 234 L 170.0 264 Q 170.0 284 200.0 284 L 390 407.0" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/><text x="178.0" y="279" font-size="11" fill="#555">1</text><text x="368" y="401.0" font-size="11" fill="#555">*</text><path d="M 870.0 124 L 870.0 214 Q 870.0 234 840.0 234 L 650 385.0" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/><text x="854.0" y="229" font-size="11" fill="#555">1</text><text x="658" y="379.0" font-size="11" fill="#555">*</text><path d="M 520.0 462 L 520.0 560" fill="none" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/><text x="528.0" y="480" font-size="11" fill="#555">1</text><text x="528.0" y="554" font-size="11" fill="#555">1</text>
+  
+<rect x="40" y="560" width="280" height="130" rx="4" fill="white" stroke="#ddd"/>
+<text x="56" y="582" font-size="12" font-weight="bold" fill="#222">Legend</text>
+<text x="56" y="604" font-size="11" font-family="Courier New, monospace" fill="#2c6ecb">PK</text>
+<text x="90" y="604" font-size="11" fill="#555">Primary key</text>
+<text x="56" y="624" font-size="11" font-family="Courier New, monospace" fill="#e67e22">FK</text>
+<text x="90" y="624" font-size="11" fill="#555">Foreign key</text>
+<text x="56" y="644" font-size="11" font-family="Courier New, monospace" fill="#2c6ecb">PK/FK</text>
+<text x="118" y="644" font-size="11" fill="#555">Primary + foreign key</text>
+<text x="56" y="664" font-size="11" fill="#555">1 &#8212;&#8250; *</text>
+<text x="130" y="664" font-size="11" fill="#555">one-to-many</text>
+<text x="56" y="682" font-size="11" fill="#555">1 &#8212;&#8250; 1</text>
+<text x="130" y="682" font-size="11" fill="#555">one-to-one</text>
+
+</svg>
