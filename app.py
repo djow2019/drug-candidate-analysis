@@ -78,6 +78,30 @@ def fetch_distinct_values(table: str, column: str):
     return [row[column] for row in rows]
 
 
+# fixed cohort used by the /api/analysis endpoints below: baseline (day 0)
+# PBMC samples from melanoma subjects on the miraclib treatment
+BASELINE_COHORT_WHERE = """
+    WHERE s.type = 'PBMC'
+      AND s.time_from_treatment_start = 0
+      AND sub.condition = 'melanoma'
+      AND sub.treatment = 'miraclib'
+"""
+
+
+def baseline_cohort_query(select_clause: str, group_by: str = None):
+    """Build a query over the fixed baseline cohort (see BASELINE_COHORT_WHERE),
+    optionally grouped by a column."""
+    query = f"""
+    SELECT {select_clause}
+    FROM samples s
+    JOIN subjects sub ON sub.id = s.subject
+    {BASELINE_COHORT_WHERE}
+    """
+    if group_by:
+        query += f" GROUP BY {group_by} ORDER BY {group_by}"
+    return query + ";"
+
+
 # routes home url /
 @app.route('/')
 def home():
@@ -151,6 +175,44 @@ def get_treatments():
 def get_types():
     types = fetch_distinct_values('samples', 'type')
     return jsonify({"message": types}), 200
+
+
+# 1. count of baseline (day 0) PBMC samples from melanoma subjects on miraclib
+@app.route('/api/analysis/pbmc-baseline/count', methods=['GET'])
+def pbmc_baseline_count():
+    query = baseline_cohort_query("COUNT(*) AS count")
+    result = fetch_rows(query, {})[0]
+    return jsonify({"message": result}), 200
+
+
+# 2. same cohort, broken down by project
+@app.route('/api/analysis/pbmc-baseline/count-by-project', methods=['GET'])
+def pbmc_baseline_count_by_project():
+    query = baseline_cohort_query("s.project AS project, COUNT(*) AS count", group_by="s.project")
+    rows = fetch_rows(query, {})
+    return jsonify({"message": rows}), 200
+
+
+# 3. same cohort, subjects grouped by response (yes/no)
+@app.route('/api/analysis/pbmc-baseline/response-counts', methods=['GET'])
+def pbmc_baseline_response_counts():
+    query = baseline_cohort_query(
+        "sub.response AS response, COUNT(DISTINCT sub.id) AS count",
+        group_by="sub.response"
+    )
+    rows = fetch_rows(query, {})
+    return jsonify({"message": rows}), 200
+
+
+# 4. same cohort, subjects grouped by sex (M/F)
+@app.route('/api/analysis/pbmc-baseline/sex-counts', methods=['GET'])
+def pbmc_baseline_sex_counts():
+    query = baseline_cohort_query(
+        "sub.sex AS sex, COUNT(DISTINCT sub.id) AS count",
+        group_by="sub.sex"
+    )
+    rows = fetch_rows(query, {})
+    return jsonify({"message": rows}), 200
 
 
 # runs a t-test on two groups of sample values

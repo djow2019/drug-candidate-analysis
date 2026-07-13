@@ -101,6 +101,29 @@
         </div>
     </div>
 
+    <div class="chart-container">
+        <h2>Data Q&amp;A</h2>
+
+        <div class="qa-list">
+            <div class="qa-item">
+                <p class="qa-question">How many baseline (day 0) PBMC samples are there from melanoma subjects treated with miraclib?</p>
+                <p class="qa-answer" id="qa-count">Loading...</p>
+            </div>
+            <div class="qa-item">
+                <p class="qa-question">How does that break down by project?</p>
+                <p class="qa-answer" id="qa-by-project">Loading...</p>
+            </div>
+            <div class="qa-item">
+                <p class="qa-question">Of those subjects, how many responded to treatment (yes vs no)?</p>
+                <p class="qa-answer" id="qa-response">Loading...</p>
+            </div>
+            <div class="qa-item">
+                <p class="qa-question">Of those subjects, what's the sex breakdown (M vs F)?</p>
+                <p class="qa-answer" id="qa-sex">Loading...</p>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
     <script>
         const statusEl = document.getElementById('status');
@@ -523,9 +546,59 @@
         treatmentSelect.addEventListener('change', updateFilteredBoxPlots);
         typeSelect.addEventListener('change', updateFilteredBoxPlots);
 
+        // ---- data Q&A ----
+
+        async function getJSON(url) {
+            const res = await fetch(url);
+            if (!res.ok) {
+                throw new Error('Request failed with status ' + res.status);
+            }
+            return res.json();
+        }
+
+        async function loadQAndA() {
+            try {
+                const countData = await getJSON('/api/analysis/pbmc-baseline/count');
+                document.getElementById('qa-count').textContent = countData.message.count;
+            } catch (err) {
+                document.getElementById('qa-count').textContent = 'Failed to load.';
+            }
+
+            try {
+                const byProjectData = await getJSON('/api/analysis/pbmc-baseline/count-by-project');
+                const rows = byProjectData.message || [];
+                document.getElementById('qa-by-project').textContent = rows.length === 0
+                    ? 'No matching samples.'
+                    : rows.map(r => `${r.project}: ${r.count}`).join(', ');
+            } catch (err) {
+                document.getElementById('qa-by-project').textContent = 'Failed to load.';
+            }
+
+            try {
+                const responseData = await getJSON('/api/analysis/pbmc-baseline/response-counts');
+                const rows = responseData.message || [];
+                document.getElementById('qa-response').textContent = rows.length === 0
+                    ? 'No matching subjects.'
+                    : rows.map(r => `${r.response}: ${r.count}`).join(', ');
+            } catch (err) {
+                document.getElementById('qa-response').textContent = 'Failed to load.';
+            }
+
+            try {
+                const sexData = await getJSON('/api/analysis/pbmc-baseline/sex-counts');
+                const rows = sexData.message || [];
+                document.getElementById('qa-sex').textContent = rows.length === 0
+                    ? 'No matching subjects.'
+                    : rows.map(r => `${r.sex}: ${r.count}`).join(', ');
+            } catch (err) {
+                document.getElementById('qa-sex').textContent = 'Failed to load.';
+            }
+        }
+
         // load all data by default when the page opens
         loadAllData();
         loadDropdownOptions().then(updateFilteredBoxPlots);
+        loadQAndA();
     </script>
 
 </body>
