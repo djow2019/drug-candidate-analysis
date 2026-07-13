@@ -16,9 +16,11 @@ class Subjects(Base):
     condition: Mapped[str] = mapped_column(String(30), nullable=True)
     age: Mapped[int] = mapped_column(nullable=True)
     sex: Mapped[str] = mapped_column(String(10), nullable=True)
+    treatment: Mapped[str] = mapped_column(String(30), nullable=True)
+    response: Mapped[str] = mapped_column(String(30), nullable=True)
 
     def __repr__(self) -> str:
-        return f"Subject(id={self.id}, condition={self.condition}, age={self.age}, sex={self.sex})"
+        return f"Subject(id={self.id}, condition={self.condition}, age={self.age}, sex={self.sex}, treatment={self.treatment}, response={self.response})"
 
 
 class Projects(Base):
@@ -34,12 +36,11 @@ class Samples(Base):
     id: Mapped[str] = mapped_column(primary_key=True)
     project: Mapped[str] = mapped_column(ForeignKey("projects.id"))
     subject: Mapped[str] = mapped_column(ForeignKey("subjects.id"))
-    treatment: Mapped[str] = mapped_column(String(30), nullable=True)
-    response: Mapped[str] = mapped_column(String(30), nullable=True)
     type: Mapped[str] = mapped_column(String(30), nullable=True)
+    time_from_treatment_start: Mapped[int] = mapped_column(nullable=True)
 
     def __repr__(self) -> str:
-        return f"Sample(id={self.id}, project={self.project}, subject={self.subject}, treatment={self.treatment}, response={self.response}, type={self.type})"
+        return f"Sample(id={self.id}, project={self.project}, subject={self.subject}, type={self.type}, time_from_treatment_start={self.time_from_treatment_start})"
 
 
 class CellCounts(Base):

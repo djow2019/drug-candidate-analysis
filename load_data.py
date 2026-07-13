@@ -34,7 +34,9 @@ def load_cell_data(file_name: str, engine: SqlEngine, db: str):
                 "id": row["subject"],
                 "condition": row["condition"],
                 "age": row["age"],
-                "sex": row["sex"]
+                "sex": row["sex"],
+                "treatment": row["treatment"],
+                "response": row["response"]
             })
             buf_projects.append({
                 "id": row["project"]
@@ -43,9 +45,8 @@ def load_cell_data(file_name: str, engine: SqlEngine, db: str):
                 "id": row["sample"],
                 "project": row["project"],
                 "subject": row["subject"],
-                "treatment": row["treatment"],
                 "type": row["sample_type"],
-                "response": row["response"]
+                "time_from_treatment_start": row["time_from_treatment_start"]
             })
             buf_counts.append({
                 "sample": row["sample"],

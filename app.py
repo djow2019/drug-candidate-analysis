@@ -10,8 +10,8 @@ app = Flask(__name__)
 db = "cells"
 
 # shared CTE that computes cell counts + relative frequencies per sample,
-# joined against samples so callers can filter on either cell_counts or
-# samples columns. {filter} is substituted with a WHERE clause (or "").
+# joined against samples and subjects so callers can filter on columns from
+# any of the three tables. {filter} is substituted with a WHERE clause (or "").
 FREQUENCY_CTE = """
 WITH base AS (
     SELECT cc.sample,
@@ -23,6 +23,7 @@ WITH base AS (
            (COALESCE(cc.b_cells, 0) + COALESCE(cc.cd8_t_cells, 0) + COALESCE(cc.cd4_t_cells, 0) + COALESCE(cc.nk_cells, 0) + COALESCE(cc.monocytes, 0)) AS total_count
     FROM cell_counts cc
     LEFT JOIN samples s ON s.id = cc.sample
+    LEFT JOIN subjects sub ON sub.id = s.subject
     {filter}
 ),
 freq AS (
@@ -37,10 +38,11 @@ freq AS (
 """
 
 # maps request field name -> qualified SQL column
+# treatment/response now live on subjects; type stays on samples
 FILTER_COLUMNS = {
     "sample": "cc.sample",
-    "treatment": "s.treatment",
-    "response": "s.response",
+    "treatment": "sub.treatment",
+    "response": "sub.response",
     "type": "s.type",
 }
 
@@ -119,7 +121,7 @@ def calc_frequency():
     return jsonify(response), 201
 
 
-# frequencies filtered by treatment / response / type (from the samples table)
+# frequencies filtered by treatment / response (from subjects) and type (from samples)
 @app.route('/api/frequency/filter', methods=['POST'])
 def calc_frequency_filtered():
     data = request.get_json()
@@ -137,10 +139,10 @@ def calc_frequency_filtered():
     return jsonify({"message": rows}), 201
 
 
-# unique treatment values from the samples table
+# unique treatment values from the subjects table
 @app.route('/api/treatments', methods=['GET'])
 def get_treatments():
-    treatments = fetch_distinct_values('samples', 'treatment')
+    treatments = fetch_distinct_values('subjects', 'treatment')
     return jsonify({"message": treatments}), 200
 
 
